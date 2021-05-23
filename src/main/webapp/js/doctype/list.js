@@ -10,6 +10,8 @@ $(document).ready(function () {
         $('#createModal').modal('show');
     });
 
+
+
     $("#create_save").on('click', function () {
         var data = $('#code').val();
         var data_old = $('#old_code').val();

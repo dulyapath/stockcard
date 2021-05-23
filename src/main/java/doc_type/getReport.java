@@ -53,7 +53,21 @@ public class getReport extends HttpServlet {
 
             String _itemCode = "";
             if (request.getParameter("itemcode") != "") {
-                _itemCode = "  and sc.item_code='" + request.getParameter("itemcode") + "' ";
+                String[] itemSplit = request.getParameter("itemcode").split(",");
+                if (itemSplit.length > 1) {
+                    String _whereIc = "";
+                    for (int i = 0; i < itemSplit.length; i++) {
+                        if (i == 0) {
+                            _whereIc += "'" + itemSplit[i] + "'";
+                        } else {
+                            _whereIc += ",'" + itemSplit[i] + "'";
+                        }
+                    }
+                    _itemCode = "  and sc.item_code in (" + _whereIc + ") ";
+                } else {
+                    _itemCode = "  and sc.item_code='" + request.getParameter("itemcode") + "' ";
+                }
+
             }
             String _whCode = "";
             if (request.getParameter("whcode") != "") {

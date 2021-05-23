@@ -144,6 +144,48 @@ function  _getWhcode() {
     });
 }
 
+function _loadItemData() {
+    $('#overlay').show();
+    $("#btn_search").attr('disabled', 'true');
+    $.ajax({
+        url: serverURL + 'getItemList',
+        method: 'GET',
+        cache: false,
+        success: function (res) {
+            console.log(res)
+
+            if (res.length > 0) {
+                var html = "";
+                for (var i = 0; i < res.length; i++) {
+                    html += `<tr class='item_click' code='${res[i].item_code}' style='cursor:pointer'>
+                                <td>${res[i].item_code}</td>
+                                <td>${res[i].item_name}</td>
+                                <td>${res[i].unit_code}</td>
+                            </tr>`
+                }
+                $('#item_body_detail').html(html)
+                setTimeout(function () {
+                    $('#overlay').hide();
+                    $('#table-item-select').DataTable();
+                    $("#btn_search").removeAttr('disabled');
+                }, 1000)
+
+            } else {
+                $('#overlay').hide();
+                alert('ไม่พบข้อมูลสินค้า')
+                $("#btn_search").removeAttr('disabled');
+            }
+
+        },
+        error: function (res) {
+            $('#overlay').hide();
+            console.log(res)
+        },
+    });
+
+
+}
+
 function  _alertMsgBox() {
     $.ajax({
         url: serverURL + 'getAlertMsg',
@@ -188,12 +230,33 @@ function delay(callback, ms) {
 }
 
 $(document).ready(function () {
-
+    _loadItemData()
     _getWhcode()
     _getGroupmain()
     _getGroupsub()
     _getBrand()
     _getDoctype()
+
+
+    $(document).delegate('.item_click', 'click', function (event) {
+        var code = $(this).attr('code')
+        var old_data = $('#item_code').val();
+        if (old_data == '') {
+            $('#item_code').val(code)
+        } else {
+            $('#item_code').val(old_data + ',' + code)
+        }
+
+        $('#productModal').modal('hide')
+
+    });
+
+    $("#btn_search").on('click', function (e) {
+
+
+        $('#productModal').modal('show')
+    });
+
     $("#copy").on('click', function (e) {
 
 
@@ -263,12 +326,13 @@ function _showDetail(data) {
 
             html += `   <td nowrap>${data[i].wh_code}</td>
                         <td nowrap class='text-center'>${data[i].unit_code}</td>
-                        <td nowrap class='text-right'>${formatnumber(parseFloat(data[i].sc_qty))}</td>
-                        <td nowrap class='text-right'>${formatnumber(parseFloat(data[i].balance_qty))}</td>`
+                        <td nowrap class='text-right' style='color:#007bff;font-weight:bold'>${formatnumber(parseFloat(data[i].sc_qty))}</td>
+                        <td nowrap class='text-right' style='color:#6610f2;font-weight:bold'>${formatnumber(parseFloat(data[i].balance_qty))}</td>
+                        `
             if (parseFloat(data[i].sc_qty) == parseFloat(data[i].balance_qty)) {
-                html += `   <td nowrap class='text-center' style='background-color:#28a745;color:#fff'>Match</td>`
+                html += `  <td nowrap class='text-right' style='color:#28a745;font-weight:bold'>${formatnumber(parseFloat(data[i].sc_qty) - parseFloat(data[i].balance_qty))}</td> <td nowrap class='text-center' style='background-color:#28a745;color:#fff;font-weight:bold'>Match</td>`
             } else {
-                html += `   <td nowrap class='text-center' style='background-color:#dc3545;color:#fff'>Not Match</td>`
+                html += `  <td nowrap class='text-right' style='color:#dc3545;font-weight:bold'>${formatnumber(parseFloat(data[i].sc_qty) - parseFloat(data[i].balance_qty))}</td> <td nowrap class='text-center' style='background-color:#dc3545;color:#fff;font-weight:bold'>Not Match</td>`
             }
 
             html += `</tr>`

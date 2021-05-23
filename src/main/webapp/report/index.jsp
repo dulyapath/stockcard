@@ -14,7 +14,49 @@
 %>
 <jsp:include  page="../theme/header.jsp" flush="true" />
 <style>
+    #overlay {
+        position: fixed;
+        display: none;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 2;
+        cursor: pointer;
+    }
 
+    #text{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        color: white;
+        transform: translate(-50%,-50%);
+        -ms-transform: translate(-50%,-50%);
+    }
+
+    .loader {
+        border: 16px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 16px solid #3498db;
+        width: 120px;
+        height: 120px;
+        -webkit-animation: spin 2s linear infinite; /* Safari */
+        animation: spin 2s linear infinite;
+    }
+
+    /* Safari */
+    @-webkit-keyframes spin {
+        0% { -webkit-transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); }
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 </style>
 <input type="hidden" value="" id="r_status">
 <input type="hidden" value="<%=_sess.getAttribute("user")%>" id="userlogin">
@@ -33,12 +75,19 @@
                 </p>
                 <a href="javascript:;" class="alert-link btn-alert-ok" style="color:#fff">ตกลง</a>
             </div>
+            <div id="overlay" class="">
+                <img  id="text" src="${sublink}assets/img/loading.gif">
+            </div>
             <div id="doc_list" >
                 <div class="row">
                     <div class="col-sm-6 col-md-3">
                         <label>สินค้า</label>
-                        <input type="text" class="form-control"  style="width:100%"  id="item_code" placeholder="รหัสสินค้า">
-
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="" id="item_code">
+                            <div class="input-group-append">
+                                <button class="btn btn-info" type="button" id="btn_search"><i class="fa fa-search"></i></button>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-sm-6 col-md-3">
                         <label>คลัง</label>
@@ -69,7 +118,7 @@
                     <div class="col-sm-6 col-md-3">
                         <label>ประเภท</label>
                         <select class=" select_doctype" style="width:100%" id="doc_type" >
-                           
+
                         </select>
                     </div>
                 </div>
@@ -91,6 +140,7 @@
                                     <th class="text-center">หน่วยนับ</th>
                                     <th class="text-center">ยอดคงเหลือ</th>
                                     <th class="text-center">System</th>
+                                    <th class="text-center">ผลต่าง</th>
                                     <th class="text-center"></th>
                                 </tr>
                             </thead>
@@ -105,6 +155,38 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="productModal" tabindex="-1" role="dialog" >
+    <div class="modal-dialog modal-lg " role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modaltitle">รายการสินค้า</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped" id="table-item-select">
+                        <thead>
+                        <th class="text-center">รหัส</th>
+                        <th class="text-center">ชื่อ</th>
+                        <th class="text-center">หน่วยนับ</th>
+                        </thead>
+                        <tbody id="item_body_detail">
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">ปิด</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="modalCust" tabindex="-1" role="dialog"  aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
