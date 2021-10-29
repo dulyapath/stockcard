@@ -44,6 +44,7 @@ public class getItemList extends HttpServlet {
         String __provider = _sess.getAttribute("provider").toString().toLowerCase();
         String search = "";
 
+        String term = request.getParameter("term");
         JSONArray jsarr = new JSONArray();
 
         Connection __conn = null;
@@ -55,8 +56,8 @@ public class getItemList extends HttpServlet {
             String _code = "";
             String _name = "";
 
-            String query1 = "select code as item_code , name_1 as item_name ,unit_cost from ic_inventory order by code";
-            //System.out.println("query1 "+query1);
+            String query1 = "select code as item_code , name_1 as item_name ,unit_cost from ic_inventory where upper(code) like '%" + term.toUpperCase() + "%' or upper(name_1) like '%" + term.toUpperCase() + "%'  order by code";
+            System.out.println("query1 " + query1);
             PreparedStatement __stmt = __conn.prepareStatement(query1, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ResultSet __rsHead = __stmt.executeQuery();
 

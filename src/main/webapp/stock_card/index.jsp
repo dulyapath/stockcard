@@ -14,6 +14,49 @@
 %>
 <jsp:include  page="../theme/header.jsp" flush="true" />
 <style>
+    #overlay {
+        position: fixed;
+        display: none;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 2;
+        cursor: pointer;
+    }
+
+    #text{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        color: white;
+        transform: translate(-50%,-50%);
+        -ms-transform: translate(-50%,-50%);
+    }
+
+    .loader {
+        border: 16px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 16px solid #3498db;
+        width: 120px;
+        height: 120px;
+        -webkit-animation: spin 2s linear infinite; /* Safari */
+        animation: spin 2s linear infinite;
+    }
+
+    /* Safari */
+    @-webkit-keyframes spin {
+        0% { -webkit-transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); }
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 
 </style>
 <input type="hidden" value="" id="r_status">
@@ -25,15 +68,21 @@
 
 <div class="content-wrapper" style="background-color: #fff">
     <!-- Content Header (Page header) -->
+
     <div class="content-header">
         <div class="container-fluid">
+            <div id="overlay" class="">
+                <img  id="text" src="${sublink}assets/img/loading.gif">
+            </div>
             <div class="row" style="margin-top:1rem">
-                <div class="col-6 offset-3">
+                <div class="col-4 offset-1">
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" placeholder="Scan barcode" id="scanner">
-                        <div class="input-group-append">
-                            <button class="btn btn-info" type="button" id="btn_search"><i class="fa fa-search"></i></button>
-                        </div>
+                    </div>
+                </div>
+                <div class="col-4 offset-1">
+                    <div class="input-group mb-3">
+                        <select class="form-control" style="" placeholder="เลือกสินค้า" id="itemsselect"></select>
                     </div>
                 </div>
             </div>

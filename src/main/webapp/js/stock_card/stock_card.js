@@ -3,8 +3,34 @@ var pageActive = 1;
 $(document).ready(function () {
 
 
-    _loadItemData()
+    //_loadItemData()
     _getDocType();
+
+    $('#itemsselect').select2({
+        theme: "bootstrap",
+        ajax: {
+            url: serverURL + 'getItemList',
+            dataType: 'json',
+            type: "GET",
+            quietMillis: 50,
+            data: function (term) {
+                //console.log(term)
+                return {
+                    term: term.term
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: $.map(data, function (item) {
+                        return {
+                            text: item.item_code + '~' + item.item_name,
+                            id: item.item_code
+                        }
+                    })
+                };
+            }
+        }
+    });
 
     setTimeout(function () {
         _loadUserData()
@@ -23,7 +49,7 @@ $(document).ready(function () {
         if (item_code != '') {
             var currentdate = new Date();
             $('#doc_date').val(currentdate.getFullYear() + '-' + ('0' + (currentdate.getMonth() + 1)).slice(-2) + '-' + ('0' + currentdate.getDate()).slice(-2));
-            $('#doc_ref').val('');
+
             $('#doc_type').val('');
             $('#qty').val('0');
             $('#remark').val('');
@@ -216,9 +242,9 @@ $(document).ready(function () {
 
         }
     });
-    $(document).delegate('.item_click', 'click', function (event) {
-        var code = $(this).attr('code')
-        $('#scanner').val();
+    $(document).delegate('#itemsselect', 'input', function (event) {
+        var code = $('#itemsselect').val()
+        console.log(code)
         if (code != '') {
             $('#productModal').modal('hide')
             $.ajax({
@@ -295,7 +321,7 @@ function formatNumber(num) {
 }
 
 function _loadItemData() {
-    $("#btn_search").attr('disabled', 'true');
+    $('#overlay').show();
     $.ajax({
         url: serverURL + 'getItemList',
         method: 'GET',
@@ -306,25 +332,24 @@ function _loadItemData() {
             if (res.length > 0) {
                 var html = "";
                 for (var i = 0; i < res.length; i++) {
-                    html += `<tr class='item_click' code='${res[i].item_code}' style='cursor:pointer'>
-                                <td>${res[i].item_code}</td>
-                                <td>${res[i].item_name}</td>
-                                <td>${res[i].unit_code}</td>
-                            </tr>`
+                    html += `<option value='${res[i].item_code}'>${res[i].item_code}~${res[i].item_name}</option>`
                 }
-                $('#item_body_detail').html(html)
+                $('#itemsselect').html(html)
                 setTimeout(function () {
-                    $('#table-item-select').DataTable();
-                    $("#btn_search").removeAttr('disabled');
+                    $('#itemsselect').select2({
+                        theme: "bootstrap"
+                    });
+                    $('#overlay').hide();
                 }, 1000)
 
             } else {
                 alert('ไม่พบข้อมูลสินค้า')
-                $("#btn_search").removeAttr('disabled');
+                $('#overlay').hide();
             }
 
         },
         error: function (res) {
+            $('#overlay').hide();
             console.log(res)
         },
     });

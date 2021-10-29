@@ -6,13 +6,11 @@
 <%@page import="java.util.Arrays"%>
 <%    String title = "Dashboard";
 %>
-
 <jsp:include  page="theme/header.jsp" flush="true" />
 <%
     String site = new String("stock_card");
     response.setStatus(response.SC_MOVED_TEMPORARILY);
     response.setHeader("Location", site);
-
 %>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper" style="background-color: #fff;padding-top:  1rem;">
