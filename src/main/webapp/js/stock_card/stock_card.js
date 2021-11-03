@@ -3,8 +3,32 @@ var pageActive = 1;
 $(document).ready(function () {
 
 
+
     //_loadItemData()
     _getDocType();
+
+    $.ajax({
+        url: serverURL + 'getScSetting',
+        method: 'GET',
+        cache: false,
+        success: function (res) {
+            console.log(res)
+            var html = "";
+            if (res.length > 0) {
+                if (res[0].date_edit == 1) {
+                    edit_date = "1"
+                } else {
+                    edit_date = "0"
+                }
+            } else {
+                $('#dateEdit').prop('checked', false);
+            }
+
+        },
+        error: function (res) {
+            console.log(res)
+        },
+    });
 
     $('#itemsselect').select2({
         theme: "bootstrap",
@@ -46,6 +70,11 @@ $(document).ready(function () {
 
     $("#new_item").on('click', function (e) {
         var item_code = $('#item_code').text();
+        if (edit_date == '0') {
+            $('#doc_date').attr('readonly', 'true');
+        } else {
+            $('#doc_date').removeAttr('readonly');
+        }
         if (item_code != '') {
             var currentdate = new Date();
             $('#doc_date').val(currentdate.getFullYear() + '-' + ('0' + (currentdate.getMonth() + 1)).slice(-2) + '-' + ('0' + currentdate.getDate()).slice(-2));

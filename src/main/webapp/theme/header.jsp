@@ -124,7 +124,14 @@
                                     </p>
                                 </a>
                             </li>
-
+                            <li class="nav-item">
+                                <a href="${sublink}stock_import" class="nav-link">
+                                    <i class="nav-icon far text-success fa-edit"></i>
+                                    <p>
+                                        นำเข้ารายการ
+                                    </p>
+                                </a>
+                            </li>
 
 
                             <li class="nav-header">รายงาน</li>
@@ -139,14 +146,18 @@
 
 
                             <li class="nav-header">ตั้งค่า</li>
-
                             <li class="nav-item">
                                 <a href="${sublink}doctype/list.jsp" class="nav-link">
                                     <i class="nav-icon fas fa-file-code text-info"></i>
                                     <p class="text">ประเภทเอกสาร</p>
                                 </a>
                             </li>
-
+                            <li class="nav-item">
+                                <a href="${sublink}setting/list.jsp" class="nav-link">
+                                    <i class="nav-icon fas fa-cog text-info"></i>
+                                    <p class="text">ตั้งค่าทั่วไป</p>
+                                </a>
+                            </li>
                             <li class="nav-item">
                                 <a href="${sublink}logout.jsp" class="nav-link">
                                     <i class="nav-icon fas fa-sign-out-alt text-danger"></i>

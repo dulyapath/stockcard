@@ -54,6 +54,51 @@ public class MigrateDatabase {
         SCDocType.addConstraint("sc_doctype_pk PRIMARY KEY (code)");
         tables.add(SCDocType);
 
+        MigrateTableModel SCImportTemp = new MigrateTableModel("sc_import_temp");
+
+        SCImportTemp.addColumns(new MigrateColumnModel("roworder", "serial", "NOT NULL"));
+        SCImportTemp.addColumns(new MigrateColumnModel("doc_no", "character varying", 255, "NOT NULL"));
+        SCImportTemp.addColumns(new MigrateColumnModel("doc_type", "character varying", 255));
+        SCImportTemp.addColumns(new MigrateColumnModel("doc_ref", "character varying", 255));
+        SCImportTemp.addColumns(new MigrateColumnModel("wh_code", "character varying", 255));
+        SCImportTemp.addColumns(new MigrateColumnModel("doc_date", "date"));
+        SCImportTemp.addColumns(new MigrateColumnModel("status", "numeric", "DEFAULT 0"));
+        SCImportTemp.addColumns(new MigrateColumnModel("trans_type", "smallint", "DEFAULT 0"));
+        SCImportTemp.addColumns(new MigrateColumnModel("remark", "character varying", 255));
+        SCImportTemp.addColumns(new MigrateColumnModel("creator_code", "character varying", 255));
+        SCImportTemp.addColumns(new MigrateColumnModel("create_datetime", "timestamp without time zone", "DEFAULT now()"));
+        SCImportTemp.addConstraint("sc_import_temp_pk PRIMARY KEY (doc_no)");
+        tables.add(SCImportTemp);
+
+        MigrateTableModel SCImportDetailTemp = new MigrateTableModel("sc_import_detail_temp");
+
+        SCImportDetailTemp.addColumns(new MigrateColumnModel("roworder", "serial", "NOT NULL"));
+        SCImportDetailTemp.addColumns(new MigrateColumnModel("doc_no", "character varying", 255));
+        SCImportDetailTemp.addColumns(new MigrateColumnModel("item_code", "character varying", 255));
+        SCImportDetailTemp.addColumns(new MigrateColumnModel("item_name", "character varying", 255));
+        SCImportDetailTemp.addColumns(new MigrateColumnModel("unit_code", "character varying", 255));
+        SCImportDetailTemp.addColumns(new MigrateColumnModel("qty", "numeric", "DEFAULT 0"));
+        SCImportDetailTemp.addColumns(new MigrateColumnModel("wh_code", "character varying", 255));
+        SCImportDetailTemp.addColumns(new MigrateColumnModel("trans_type", "smallint", "DEFAULT 0"));
+        SCImportDetailTemp.addColumns(new MigrateColumnModel("doc_date", "date"));
+        SCImportDetailTemp.addColumns(new MigrateColumnModel("remark", "character varying", 255));
+        SCImportDetailTemp.addColumns(new MigrateColumnModel("creator_code", "character varying", 255));
+        SCImportDetailTemp.addColumns(new MigrateColumnModel("create_datetime", "timestamp without time zone", "DEFAULT now()"));
+        SCImportDetailTemp.addConstraint("sc_import_detail_temp_pk PRIMARY KEY (roworder)");
+        tables.add(SCImportDetailTemp);
+
+        MigrateTableModel SCSetting = new MigrateTableModel("sc_setting");
+
+        SCSetting.addColumns(new MigrateColumnModel("roworder", "serial", "NOT NULL"));
+        SCSetting.addColumns(new MigrateColumnModel("code", "character varying", 255, "NOT NULL"));
+        SCSetting.addColumns(new MigrateColumnModel("date_edit", "smallint", "DEFAULT 0"));
+        SCSetting.addColumns(new MigrateColumnModel("create_datetime", "timestamp without time zone", "DEFAULT now()"));
+        SCSetting.addConstraint("sc_setting_pk PRIMARY KEY (code)");
+
+        SCSetting.addAfterScript("INSERT INTO sc_setting (code,date_edit) VALUES ('S001', 1)");
+
+        tables.add(SCSetting);
+
     }
 
     public void verify(String provider, String dbname, HttpSession session) {

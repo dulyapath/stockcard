@@ -1,5 +1,6 @@
-package doc_type;
+package stock_import;
 
+import doc_type.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -19,8 +20,8 @@ import org.json.JSONObject;
 import utils._global;
 import utils._routine;
 
-@WebServlet(name = "getitem-list", urlPatterns = {"/getItemList"})
-public class getItemList extends HttpServlet {
+@WebServlet(name = "getBarcodeDetail-type", urlPatterns = {"/getBarcodeDetail"})
+public class getBarcodeDetail extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -40,12 +41,26 @@ public class getItemList extends HttpServlet {
         }
 
         String __user = _sess.getAttribute("user").toString().toUpperCase();
+        String __whcode = _sess.getAttribute("wh_code").toString().toUpperCase();
         String __dbname = _sess.getAttribute("dbname").toString().toLowerCase();
         String __provider = _sess.getAttribute("provider").toString().toLowerCase();
         String search = "";
 
-        String term = request.getParameter("term");
         JSONArray jsarr = new JSONArray();
+
+        String _where = "";
+        String strOffset = "";
+        if (request.getParameter("page") != "") {
+            strOffset = request.getParameter("page");
+        }
+        if (request.getParameter("barcode") != "") {
+            _where = " and bc.barcode = '" + request.getParameter("barcode") + "'";
+
+        }
+
+        if (request.getParameter("itemcode") != "") {
+            _where = " and ic.code = '" + request.getParameter("itemcode") + "'";
+        }
 
         Connection __conn = null;
         try {
@@ -55,23 +70,13 @@ public class getItemList extends HttpServlet {
             String __queryExtend = "";
             String _code = "";
             String _name = "";
-            String _where = "";
-            String _limit = "limit 50";
-            if (term != null) {
-                if(!term.equals("")){
-                _where = " and upper(code) like '%" + term.toUpperCase() + "%' or upper(name_1) like '%" + term.toUpperCase() + "%' ";
-                _limit = "";
-                }
-            }
-            String query1 = "select code as item_code , name_1 as item_name ,unit_cost from ic_inventory where 1=1 " + _where + "  order by code "+_limit;
-            System.out.println("query1 " + query1);
+
+            String query1 = "select ic.code as item_code,ic.name_1 as item_name,ic.unit_cost as unit_code,(select name_1 from ic_unit where code = unit_cost) as unit_name from ic_inventory_barcode  as bc "
+                    + "FULL OUTER JOIN ic_inventory as ic on ic.code = bc.ic_code "
+                    + "where  1=1 " + _where;
+            //System.out.println("query1 "+query1);
             PreparedStatement __stmt = __conn.prepareStatement(query1, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ResultSet __rsHead = __stmt.executeQuery();
-
-            ResultSetMetaData _rsHeadMd = __rsHead.getMetaData();
-            int _colHeadCount = _rsHeadMd.getColumnCount();
-
-            int row = __rsHead.getRow();
 
             while (__rsHead.next()) {
 
@@ -79,7 +84,9 @@ public class getItemList extends HttpServlet {
 
                 obj.put("item_code", __rsHead.getString("item_code"));
                 obj.put("item_name", __rsHead.getString("item_name"));
-                obj.put("unit_code", __rsHead.getString("unit_cost"));
+                obj.put("unit_code", __rsHead.getString("unit_code"));
+                obj.put("unit_name", __rsHead.getString("unit_name"));
+
                 jsarr.put(obj);
             }
 

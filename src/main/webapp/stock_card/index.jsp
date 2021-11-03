@@ -9,7 +9,7 @@
     request.setAttribute("title", pageName);
     request.setAttribute("sublink", "../");
     request.setAttribute("css", Arrays.asList("../css/sweetalert.css", "../css/bootstrap-datetimepicker.min.css"));
-    request.setAttribute("js", Arrays.asList("../js/sweetalert.min.js", "../js/bootstrap-datetimepicker.min.js", "../js/stock_card/stock_card.js", "../js/SimpleTableCellEditor.js"));
+    request.setAttribute("js", Arrays.asList("../js/sweetalert.min.js", "../js/bootstrap-datetimepicker.min.js", "../conf.js","../js/stock_card/stock_card.js", "../js/SimpleTableCellEditor.js"));
     HttpSession _sess = request.getSession();
 %>
 <jsp:include  page="../theme/header.jsp" flush="true" />

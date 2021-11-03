@@ -1,4 +1,4 @@
-package doc_type;
+package stock_import;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -19,8 +19,8 @@ import org.json.JSONObject;
 import utils._global;
 import utils._routine;
 
-@WebServlet(name = "getitem-list", urlPatterns = {"/getItemList"})
-public class getItemList extends HttpServlet {
+@WebServlet(name = "import-doclist", urlPatterns = {"/getDocImport"})
+public class getDocImport extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -44,7 +44,16 @@ public class getItemList extends HttpServlet {
         String __provider = _sess.getAttribute("provider").toString().toLowerCase();
         String search = "";
 
-        String term = request.getParameter("term");
+        String from_date = "";
+        if (!request.getParameter("fd").equals("")) {
+            from_date = " and doc_date between '" + request.getParameter("fd") + "' and '" + request.getParameter("td") + "' ";
+        }
+        if (!request.getParameter("search").equals("")) {
+            from_date = "";
+            search = " and doc_no like '%" + request.getParameter("search").trim() + "%' "
+                    + "or remark like '%" + request.getParameter("search").trim() + "%' "
+                    + " or creator_code  like '%" + request.getParameter("search").trim() + "%'  ";
+        }
         JSONArray jsarr = new JSONArray();
 
         Connection __conn = null;
@@ -55,15 +64,8 @@ public class getItemList extends HttpServlet {
             String __queryExtend = "";
             String _code = "";
             String _name = "";
-            String _where = "";
-            String _limit = "limit 50";
-            if (term != null) {
-                if(!term.equals("")){
-                _where = " and upper(code) like '%" + term.toUpperCase() + "%' or upper(name_1) like '%" + term.toUpperCase() + "%' ";
-                _limit = "";
-                }
-            }
-            String query1 = "select code as item_code , name_1 as item_name ,unit_cost from ic_inventory where 1=1 " + _where + "  order by code "+_limit;
+
+            String query1 = "select *,to_char(doc_date,'DD/MM/YYYY') as doc_datex,COALESCE((select name_1 from ic_warehouse where ic_warehouse.code = wh_code),'')as wh_name,COALESCE((select name_1 from erp_user where erp_user.code = creator_code),'')as creator_name from sc_import_temp where 1=1 " + from_date + search + " order by create_datetime desc limit 50 ";
             System.out.println("query1 " + query1);
             PreparedStatement __stmt = __conn.prepareStatement(query1, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ResultSet __rsHead = __stmt.executeQuery();
@@ -77,9 +79,18 @@ public class getItemList extends HttpServlet {
 
                 JSONObject obj = new JSONObject();
 
-                obj.put("item_code", __rsHead.getString("item_code"));
-                obj.put("item_name", __rsHead.getString("item_name"));
-                obj.put("unit_code", __rsHead.getString("unit_cost"));
+                obj.put("doc_no", __rsHead.getString("doc_no"));
+                obj.put("doc_date", __rsHead.getString("doc_date"));
+                obj.put("doc_datex", __rsHead.getString("doc_datex"));
+                obj.put("doc_ref", __rsHead.getString("doc_ref"));
+                obj.put("doc_type", __rsHead.getString("doc_type"));
+                obj.put("trans_type", __rsHead.getString("trans_type"));
+                obj.put("creator_code", __rsHead.getString("creator_code"));
+                obj.put("creator_name", __rsHead.getString("creator_name"));
+                obj.put("wh_code", __rsHead.getString("wh_code"));
+                obj.put("wh_name", __rsHead.getString("wh_name"));
+                obj.put("remark", __rsHead.getString("remark"));
+          
                 jsarr.put(obj);
             }
 

@@ -1,5 +1,6 @@
-package doc_type;
+package stock_import;
 
+import doc_type.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -19,8 +20,8 @@ import org.json.JSONObject;
 import utils._global;
 import utils._routine;
 
-@WebServlet(name = "getitem-list", urlPatterns = {"/getItemList"})
-public class getItemList extends HttpServlet {
+@WebServlet(name = "getItemDetail-type", urlPatterns = {"/getItemDetail"})
+public class getItemDetail extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -40,12 +41,19 @@ public class getItemList extends HttpServlet {
         }
 
         String __user = _sess.getAttribute("user").toString().toUpperCase();
+        String __whcode = _sess.getAttribute("wh_code").toString().toUpperCase();
         String __dbname = _sess.getAttribute("dbname").toString().toLowerCase();
         String __provider = _sess.getAttribute("provider").toString().toLowerCase();
         String search = "";
 
-        String term = request.getParameter("term");
         JSONArray jsarr = new JSONArray();
+
+        String _where = "";
+        String strOffset = "";
+       
+        if (request.getParameter("itemcode") != "") {
+            _where = " and code = '" + request.getParameter("itemcode") + "'";
+        }
 
         Connection __conn = null;
         try {
@@ -55,31 +63,34 @@ public class getItemList extends HttpServlet {
             String __queryExtend = "";
             String _code = "";
             String _name = "";
-            String _where = "";
-            String _limit = "limit 50";
-            if (term != null) {
-                if(!term.equals("")){
-                _where = " and upper(code) like '%" + term.toUpperCase() + "%' or upper(name_1) like '%" + term.toUpperCase() + "%' ";
-                _limit = "";
-                }
-            }
-            String query1 = "select code as item_code , name_1 as item_name ,unit_cost from ic_inventory where 1=1 " + _where + "  order by code "+_limit;
-            System.out.println("query1 " + query1);
+
+            String query1 = "select code,name_1 from ic_inventory where  1=1 " + _where;
+            //System.out.println("query1 "+query1);
             PreparedStatement __stmt = __conn.prepareStatement(query1, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ResultSet __rsHead = __stmt.executeQuery();
-
-            ResultSetMetaData _rsHeadMd = __rsHead.getMetaData();
-            int _colHeadCount = _rsHeadMd.getColumnCount();
-
-            int row = __rsHead.getRow();
 
             while (__rsHead.next()) {
 
                 JSONObject obj = new JSONObject();
 
-                obj.put("item_code", __rsHead.getString("item_code"));
-                obj.put("item_name", __rsHead.getString("item_name"));
-                obj.put("unit_code", __rsHead.getString("unit_cost"));
+                obj.put("item_code", __rsHead.getString("code"));
+                obj.put("item_name", __rsHead.getString("name_1"));
+
+
+                String query2 = "select code,(select name_1 from ic_unit where code = ic_unit_use.code)as unit_name from ic_unit_use where ic_code = '"+__rsHead.getString("code")+"' ";
+                //System.out.println("query1 "+query1);
+                PreparedStatement __stmt2 = __conn.prepareStatement(query2, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                ResultSet __rsBody = __stmt2.executeQuery();
+                JSONArray jsarrx = new JSONArray();
+                while (__rsBody.next()) {
+                    JSONObject objDetail = new JSONObject();
+
+                    objDetail.put("unit_code", __rsBody.getString("code"));
+                    objDetail.put("unit_name", __rsBody.getString("unit_name"));
+    
+                    jsarrx.put(objDetail);
+                }
+                obj.put("units", jsarrx);
                 jsarr.put(obj);
             }
 

@@ -19,8 +19,8 @@ import org.json.JSONObject;
 import utils._global;
 import utils._routine;
 
-@WebServlet(name = "getitem-list", urlPatterns = {"/getItemList"})
-public class getItemList extends HttpServlet {
+@WebServlet(name = "getscsetting", urlPatterns = {"/getScSetting"})
+public class getSetting extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -44,7 +44,6 @@ public class getItemList extends HttpServlet {
         String __provider = _sess.getAttribute("provider").toString().toLowerCase();
         String search = "";
 
-        String term = request.getParameter("term");
         JSONArray jsarr = new JSONArray();
 
         Connection __conn = null;
@@ -55,16 +54,9 @@ public class getItemList extends HttpServlet {
             String __queryExtend = "";
             String _code = "";
             String _name = "";
-            String _where = "";
-            String _limit = "limit 50";
-            if (term != null) {
-                if(!term.equals("")){
-                _where = " and upper(code) like '%" + term.toUpperCase() + "%' or upper(name_1) like '%" + term.toUpperCase() + "%' ";
-                _limit = "";
-                }
-            }
-            String query1 = "select code as item_code , name_1 as item_name ,unit_cost from ic_inventory where 1=1 " + _where + "  order by code "+_limit;
-            System.out.println("query1 " + query1);
+
+            String query1 = "select * from sc_setting order by create_datetime desc";
+            //System.out.println("query1 "+query1);
             PreparedStatement __stmt = __conn.prepareStatement(query1, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ResultSet __rsHead = __stmt.executeQuery();
 
@@ -77,9 +69,9 @@ public class getItemList extends HttpServlet {
 
                 JSONObject obj = new JSONObject();
 
-                obj.put("item_code", __rsHead.getString("item_code"));
-                obj.put("item_name", __rsHead.getString("item_name"));
-                obj.put("unit_code", __rsHead.getString("unit_cost"));
+                obj.put("roworder", __rsHead.getString("roworder"));
+                obj.put("code", __rsHead.getString("code"));
+                obj.put("date_edit", __rsHead.getString("date_edit"));
                 jsarr.put(obj);
             }
 
